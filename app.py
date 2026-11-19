@@ -5,7 +5,36 @@ import urllib.request
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+
+# ---------------------------------------------------------------------------
+# Parche de compatibilidad Python 3.14 para pyspark.cloudpickle
+# En Python 3.14, pickle._getattribute espera una secuencia de subrutas en
+# lugar de un str con puntos, provocando RecursionError al usar PySpark 3.5.x.
+# ---------------------------------------------------------------------------
+import pyspark.cloudpickle.cloudpickle as _pyspark_cp
+
+
+def _compat_getattribute(obj, name):
+    top = obj
+    parent = obj
+    parts = name.split(".") if isinstance(name, str) else name
+    for subpath in parts:
+        if subpath == "<locals>":
+            raise AttributeError(f"Can't get local attribute {name!r} on {top!r}")
+        try:
+            parent = obj
+            obj = getattr(obj, subpath)
+        except AttributeError:
+            raise AttributeError(f"Can't get attribute {name!r} on {top!r}") from None
+    return obj, parent
+
+
+_pyspark_cp._getattribute = _compat_getattribute
+if hasattr(_pyspark_cp, "cloudpickle_fast"):
+    _pyspark_cp.cloudpickle_fast._getattribute = _compat_getattribute
+
 from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 from pyspark.sql.types import (
     StructType,
     StructField,
@@ -13,6 +42,27 @@ from pyspark.sql.types import (
     DoubleType,
 )
 from pyspark.ml import PipelineModel
+from pyspark.ml.util import DefaultParamsReader
+
+# Evita usar PythonRDD / cloudpickle al leer metadata JSON en PipelineModel.load
+_orig_load_metadata = DefaultParamsReader.loadMetadata
+
+
+@staticmethod
+def _safe_load_metadata(path, sc, expectedClassName=""):
+    meta_dir = os.path.join(path, "metadata")
+    if os.path.isdir(meta_dir):
+        for fname in sorted(os.listdir(meta_dir)):
+            if fname.startswith("part-") and not fname.endswith(".crc"):
+                full_file = os.path.join(meta_dir, fname)
+                with open(full_file, "r", encoding="utf-8") as mf:
+                    lines = [ln.strip() for ln in mf if ln.strip()]
+                if lines:
+                    return DefaultParamsReader._parseMetaData("\n".join(lines), expectedClassName)
+    return _orig_load_metadata(path, sc, expectedClassName)
+
+
+DefaultParamsReader.loadMetadata = _safe_load_metadata
 
 # ---------------------------------------------------------------------------
 # Configuración de página y estilos institucionales
@@ -941,7 +991,9 @@ if submitted:
         int(total_approved_units),
     )
 
-    input_sdf = spark.createDataFrame([row_tuple], schema=INPUT_SCHEMA)
+    input_sdf = spark.range(1).select(
+        *[F.lit(val).cast(field.dataType).alias(field.name) for field, val in zip(INPUT_SCHEMA.fields, row_tuple)]
+    )
 
     # Aplicar el PipelineModel cargado
     pred_sdf = pipeline_model.transform(input_sdf)
