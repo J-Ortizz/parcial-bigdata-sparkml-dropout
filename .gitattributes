@@ -1,0 +1,5 @@
+﻿modelo_final/** -text
+*.parquet binary
+*.crc binary
+*.png binary
+*.zip binary
