@@ -65,11 +65,11 @@ def _safe_load_metadata(path, sc, expectedClassName=""):
 DefaultParamsReader.loadMetadata = _safe_load_metadata
 
 # ---------------------------------------------------------------------------
-# Configuración de página y estilos institucionales
+# Configuración de página y sistema de diseño editorial Stitch (Paper & Ink)
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Alerta Temprana de Deserción y Éxito Académico | Spark ML",
-    page_icon="🎓",
+    page_title="Observatorio de Retención Universitaria | Spark ML",
+    page_icon="▪",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -77,67 +77,224 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .main-header {
-        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #0D9488 100%);
-        color: white;
-        padding: 1.4rem 1.8rem;
-        border-radius: 14px;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.15);
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,400&display=swap');
+
+    :root {
+        --surface: #FAF8F5;
+        --surface-low: #F2EFE9;
+        --surface-card: #FFFFFF;
+        --ink: #1C1C19;
+        --ink-muted: #575652;
+        --border: #E2DDD5;
+        --forest: #132A21;
+        --forest-mid: #1E3F32;
+        --terracotta: #A9422B;
+        --beige: #DACEC2;
     }
-    .main-header h1 {
-        color: #FFFFFF !important;
-        font-size: 1.85rem !important;
-        margin-bottom: 0.3rem !important;
+
+    html, body, [data-testid="stAppViewContainer"], .stApp {
+        background-color: var(--surface) !important;
+        color: var(--ink) !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
-    .main-header p {
-        color: #E2E8F0 !important;
-        font-size: 1.02rem !important;
+
+    [data-testid="stSidebar"] {
+        background-color: var(--surface-low) !important;
+        border-right: 1px solid var(--border) !important;
+    }
+
+    h1, h2, h3, .editorial-title {
+        font-family: 'Source Serif 4', Georgia, serif !important;
+        color: var(--forest) !important;
+        letter-spacing: -0.015em;
+    }
+
+    .editorial-masthead {
+        background-color: var(--surface-card);
+        border: 1px solid var(--border);
+        border-top: 4px solid var(--forest);
+        padding: 1.5rem 2rem;
+        border-radius: 6px;
+        margin: 0.75rem 0 1.25rem 0;
+    }
+    .editorial-kicker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--terracotta);
+        margin-bottom: 0.45rem;
+    }
+    .editorial-masthead h1 {
+        font-size: 2.05rem !important;
+        line-height: 1.18 !important;
+        margin: 0 0 0.5rem 0 !important;
+        color: var(--forest) !important;
+    }
+    .editorial-masthead p {
+        color: var(--ink-muted) !important;
+        font-size: 0.98rem !important;
+        line-height: 1.55 !important;
         margin: 0 !important;
+        max-width: 72ch;
     }
-    .instruction-box {
-        background-color: #EFF6FF;
-        border-left: 5px solid #1D4ED8;
-        padding: 1rem 1.3rem;
-        border-radius: 8px;
-        margin-bottom: 1.2rem;
-        color: #1E293B;
+
+    .instruction-guide {
+        background-color: var(--surface-low);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--terracotta);
+        padding: 1.05rem 1.4rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        color: var(--ink);
     }
+    .instruction-guide-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--forest);
+        margin-bottom: 0.45rem;
+    }
+    .instruction-guide ol {
+        margin: 0;
+        padding-left: 1.25rem;
+        font-size: 0.94rem;
+        line-height: 1.55;
+        color: var(--ink);
+    }
+
+    [data-testid="stForm"] {
+        background-color: var(--surface-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important;
+        padding: 1.5rem 1.75rem !important;
+    }
+
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0.35rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.25rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        color: var(--ink-muted) !important;
+        border-radius: 4px 4px 0 0 !important;
+        padding: 0.5rem 0.9rem !important;
+    }
+    .stTabs [aria-selected="true"] {
+        color: var(--forest) !important;
+        border-bottom: 2px solid var(--terracotta) !important;
+        background-color: var(--surface) !important;
+    }
+
+    div[data-testid="stFormSubmitButton"] > button {
+        background-color: var(--terracotta) !important;
+        color: #FFFFFF !important;
+        border: 1px solid #8E3420 !important;
+        border-radius: 4px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.03em !important;
+        padding: 0.65rem 1.5rem !important;
+    }
+    div[data-testid="stFormSubmitButton"] > button:hover {
+        background-color: var(--forest) !important;
+        border-color: var(--forest) !important;
+    }
+
+    [data-testid="stMetric"] {
+        background-color: var(--surface-card);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0.7rem 0.85rem;
+    }
+    [data-testid="stMetricValue"] {
+        font-family: 'JetBrains Mono', monospace !important;
+        color: var(--forest) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMetric"] {
+        padding: 0.45rem 0.6rem;
+    }
+    [data-testid="stSidebar"] [data-testid="stMetricValue"] {
+        font-size: 1.18rem !important;
+        line-height: 1.2 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMetricLabel"] p {
+        font-size: 0.75rem !important;
+    }
+
     .result-card-graduate {
-        background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-        border: 2px solid #10B981;
-        border-radius: 14px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        background-color: #F1F7F4;
+        border: 1px solid #B8D8C8;
+        border-left: 5px solid #1B5E43;
+        border-radius: 6px;
+        padding: 1.6rem 1.5rem;
+        text-align: left;
     }
     .result-card-dropout {
-        background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
-        border: 2px solid #EF4444;
-        border-radius: 14px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+        background-color: #FCF3F2;
+        border: 1px solid #E5C2C0;
+        border-left: 5px solid #9E2A2B;
+        border-radius: 6px;
+        padding: 1.6rem 1.5rem;
+        text-align: left;
     }
     .result-card-enrolled {
-        background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-        border: 2px solid #F59E0B;
-        border-radius: 14px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+        background-color: #FDF8EE;
+        border: 1px solid #E6D2AA;
+        border-left: 5px solid #8F5B00;
+        border-radius: 6px;
+        padding: 1.6rem 1.5rem;
+        text-align: left;
     }
+    .result-kicker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-muted);
+    }
+    .result-title {
+        font-family: 'Source Serif 4', Georgia, serif;
+        margin: 0.4rem 0 0.5rem 0;
+        color: var(--ink);
+        font-size: 1.7rem;
+        line-height: 1.2;
+        font-weight: 700;
+    }
+    .result-confidence {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
     .author-footer {
         margin-top: 2.5rem;
-        padding: 1.2rem;
-        background: #0F172A;
-        color: #F8FAFC;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 0.96rem;
+        padding: 1.25rem 1.5rem;
+        background-color: var(--forest);
+        color: #F2EFE9;
+        border-top: 3px solid var(--terracotta);
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: 0.92rem;
     }
     .author-footer strong {
-        color: #38BDF8;
+        color: #FFFFFF;
+    }
+    .author-footer span {
+        color: #B4CCBB;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
     }
     </style>
     """,
@@ -166,7 +323,7 @@ def _ensure_windows_hadoop():
             os.environ["PATH"] = bin_path + os.pathsep + os.environ.get("PATH", "")
 
 
-@st.cache_resource(show_spinner="Inicializando motor Apache Spark ML y cargando PipelineModel...")
+@st.cache_resource(show_spinner="Inicializando Apache Spark ML y cargando el modelo en memoria...")
 def load_spark_and_model():
     _ensure_windows_hadoop()
     os.environ["PYSPARK_PYTHON"] = sys.executable
@@ -180,6 +337,8 @@ def load_spark_and_model():
         .config("spark.driver.bindAddress", "127.0.0.1")
         .config("spark.driver.memory", "4g")
         .config("spark.sql.constraintPropagation.enabled", "false")
+        .config("spark.sql.execution.arrow.pyspark.enabled", "true")
+        .config("spark.sql.execution.arrow.pyspark.fallback.enabled", "true")
         .config("spark.sql.shuffle.partitions", "4")
         .config("spark.default.parallelism", "4")
         .config("spark.ui.enabled", "false")
@@ -490,25 +649,25 @@ PRESET_PROFILES = {
 
 CLASS_TRANSLATIONS = {
     "Graduate": {
-        "es": "Graduado / Éxito Académico (Graduate)",
-        "icon": "🎓",
+        "es": "Graduado / Éxito Académico",
+        "tag": "TRAYECTORIA FAVORABLE",
         "card_class": "result-card-graduate",
-        "color": "#10B981",
+        "color": "#1B5E43",
         "desc": "El estudiante presenta indicadores académicos y financieros sólidos que lo proyectan hacia la culminación exitosa de sus estudios.",
     },
     "Dropout": {
-        "es": "En Riesgo de Deserción (Dropout)",
-        "icon": "⚠️",
+        "es": "En Riesgo de Deserción",
+        "tag": "ALERTA TEMPRANA",
         "card_class": "result-card-dropout",
-        "color": "#EF4444",
-        "desc": "ALERTA TEMPRANA: El estudiante presenta factores críticos asociados con abandono universitario. Se recomienda intervención de bienestar y tutoría académica.",
+        "color": "#9E2A2B",
+        "desc": "Se detectan factores críticos asociados con abandono universitario. Se recomienda activar seguimiento de tutoría académica y apoyo financiero.",
     },
     "Enrolled": {
-        "es": "Matriculado en Curso (Enrolled)",
-        "icon": "📘",
+        "es": "Matriculado en Curso",
+        "tag": "SEGUIMIENTO PREVENTIVO",
         "card_class": "result-card-enrolled",
-        "color": "#F59E0B",
-        "desc": "El estudiante continúa activo en su trayectoria curricular, con avance parcial. Se sugiere seguimiento preventivo para asegurar su transición hacia la graduación.",
+        "color": "#8F5B00",
+        "desc": "El estudiante continúa activo en su trayectoria curricular con avance parcial. Se sugiere acompañamiento preventivo para consolidar su graduación.",
     },
 }
 
@@ -564,9 +723,10 @@ if os.path.exists(banner_path):
 
 st.markdown(
     """
-    <div class="main-header">
-        <h1>🎓 Sistema Inteligente de Predicción de Deserción y Éxito Académico</h1>
-        <p>Plataforma de analítica predictiva universitaria impulsada por <strong>Apache Spark ML (PipelineModel)</strong> para clasificar estudiantes en <em>Dropout</em>, <em>Enrolled</em> o <em>Graduate</em>.</p>
+    <div class="editorial-masthead">
+        <div class="editorial-kicker">Analítica Universitaria · Apache Spark ML · PyArrow</div>
+        <h1>Diagnóstico Temprano de Deserción y Éxito Estudiantil</h1>
+        <p>Evaluación predictiva de trayectoria académica basada en <strong>PipelineModel</strong> de Apache Spark ML para clasificar cada expediente en <em>Dropout</em>, <em>Enrolled</em> o <em>Graduate</em>.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -575,44 +735,42 @@ st.markdown(
 spark, pipeline_model, labels, best_model_name, test_metrics = load_spark_and_model()
 
 with st.sidebar:
-    st.header("⚙️ Información del Modelo")
-    st.success(f"**Modelo activo:** `{best_model_name}`")
-    st.caption("Cargado en memoria con `PipelineModel.load('modelo_final')` y `@st.cache_resource`.")
+    st.markdown("### Especificación del Modelo")
+    st.markdown(f"**Clasificador:** `{best_model_name}`")
+    st.caption("Spark + `PipelineModel` en caché (`@st.cache_resource`) con PyArrow habilitado.")
 
-    st.markdown("**Orden de etiquetas (`StringIndexer.labels`):**")
-    for idx, lbl in enumerate(labels):
-        st.markdown(f"- Índice `{idx}` → **{lbl}**")
+    st.markdown("**Etiquetas (`StringIndexer`):** `0` Graduate · `1` Dropout · `2` Enrolled")
 
     if test_metrics:
-        st.divider()
-        st.subheader("📊 Métricas en Test (20%)")
+        st.markdown("---")
+        st.markdown("#### Desempeño en Prueba (20%)")
         c1, c2 = st.columns(2)
-        c1.metric("F1 Ponderado", f"{test_metrics.get('f1', 0):.4f}")
+        c1.metric("F1 Pond.", f"{test_metrics.get('f1', 0):.4f}")
         c2.metric("Accuracy", f"{test_metrics.get('accuracy', 0):.4f}")
         c3, c4 = st.columns(2)
         c3.metric("Precisión", f"{test_metrics.get('weightedPrecision', 0):.4f}")
         c4.metric("Recall", f"{test_metrics.get('weightedRecall', 0):.4f}")
 
-    st.divider()
-    st.subheader("🧪 Perfiles de Prueba Rápidos")
+    st.markdown("---")
+    st.markdown("#### Perfiles de Referencia")
     selected_preset = st.selectbox(
-        "Cargar valores de ejemplo en el formulario:",
+        "Precargar expediente de ejemplo:",
         options=list(PRESET_PROFILES.keys()),
         index=0,
     )
     defaults = PRESET_PROFILES[selected_preset]
 
-    st.divider()
-    st.caption("Autor: **Juan David Ortiz Pérez**\nParcial Big Data — Apache Spark ML")
+    st.markdown("---")
+    st.caption("Autor: **Juan David Ortiz Pérez**  \nParcial Big Data · Apache Spark ML")
 
 st.markdown(
     """
-    <div class="instruction-box">
-        <strong>📋 Instrucciones de uso:</strong>
-        <ol style="margin-top: 0.4rem; margin-bottom: 0;">
-            <li>Seleccione un <strong>perfil base</strong> en el panel lateral izquierdo o diligencie directamente las <strong>36 variables</strong> del estudiante en las secciones del formulario (Demográficas, Admisión, Socioeconómicas, Rendimiento de 1.º y 2.º Semestre y Contexto Macroeconómico).</li>
-            <li>Presione el botón <strong>🔍 Predecir</strong> ubicado al final del formulario.</li>
-            <li>La aplicación calculará automáticamente las <strong>variables académicas derivadas</strong> (tasas de aprobación por semestre, variación de nota y total de créditos aprobados), ejecutará el <code>PipelineModel</code> de Spark ML y mostrará la <strong>clase predicha</strong> junto con la distribución de <strong>probabilidades por clase</strong>.</li>
+    <div class="instruction-guide">
+        <div class="instruction-guide-title">Guía rápida de operación</div>
+        <ol>
+            <li>Elija un <strong>expediente de referencia</strong> en el panel lateral izquierdo o ajuste directamente las <strong>36 variables</strong> del estudiante distribuidas en las cinco pestañas del formulario.</li>
+            <li>Presione <strong>Predecir trayectoria estudiantil</strong> al finalizar la captura de datos.</li>
+            <li>El sistema calculará en tiempo real las <strong>4 variables académicas derivadas</strong>, ejecutará el <code>PipelineModel</code> en Apache Spark y entregará el diagnóstico junto con la probabilidad estimada para cada clase.</li>
         </ol>
     </div>
     """,
@@ -624,15 +782,15 @@ st.markdown(
 # (b) Formulario st.form con todas las variables que usa el modelo
 # ---------------------------------------------------------------------------
 with st.form("student_prediction_form"):
-    st.subheader("📝 Formulario de Datos del Estudiante")
+    st.markdown("### Expediente del Estudiante")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(
         [
-            "👤 1. Perfil Demográfico",
-            "🏛️ 2. Admisión y Programa",
-            "💳 3. Socioeconómico y Familiar",
-            "📚 4. Rendimiento 1.er y 2.º Semestre",
-            "🌎 5. Contexto Macroeconómico",
+            "01 · Demografía",
+            "02 · Admisión y Programa",
+            "03 · Socioeconómico",
+            "04 · Historial Semestral",
+            "05 · Macroeconomía",
         ]
     )
 
@@ -673,13 +831,13 @@ with st.form("student_prediction_form"):
             )
         with col3:
             displaced = st.selectbox(
-                "Desplazado / Trasladado de Residencia (displaced)",
+                "Traslado de Residencia (displaced)",
                 options=[0, 1],
                 format_func=lambda x: "1 — Sí" if x == 1 else "0 — No",
                 index=[0, 1].index(defaults["displaced"]),
             )
             educational_special_needs = st.selectbox(
-                "Necesidades Educativas Especiales (educational_special_needs)",
+                "Necesidades Especiales (educational_special_needs)",
                 options=[0, 1],
                 format_func=lambda x: "1 — Sí" if x == 1 else "0 — No",
                 index=[0, 1].index(defaults["educational_special_needs"]),
@@ -785,7 +943,7 @@ with st.form("student_prediction_form"):
     with tab4:
         col_s1, col_s2 = st.columns(2)
         with col_s1:
-            st.markdown("#### 📘 Primer Semestre")
+            st.markdown("#### Primer Semestre")
             curricular_units_1st_sem_credited = st.number_input(
                 "Unidades Convalidadas 1.er Sem (credited)",
                 min_value=0,
@@ -830,7 +988,7 @@ with st.form("student_prediction_form"):
             )
 
         with col_s2:
-            st.markdown("#### 📗 Segundo Semestre")
+            st.markdown("#### Segundo Semestre")
             curricular_units_2nd_sem_credited = st.number_input(
                 "Unidades Convalidadas 2.º Sem (credited)",
                 min_value=0,
@@ -902,7 +1060,7 @@ with st.form("student_prediction_form"):
             )
 
     st.markdown("---")
-    submitted = st.form_submit_button("🔍 Predecir", type="primary", use_container_width=True)
+    submitted = st.form_submit_button("Predecir trayectoria estudiantil", type="primary", use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # (c), (d), (e) Cálculo de variables derivadas, inferencia Spark y Resultados
@@ -922,29 +1080,55 @@ if submitted:
     grade_diff_sem = float(curricular_units_2nd_sem_grade) - float(curricular_units_1st_sem_grade)
     total_approved_units = int(curricular_units_1st_sem_approved) + int(curricular_units_2nd_sem_approved)
 
-    st.subheader("📐 Variables Académicas Derivadas (Calculadas en Tiempo Real)")
+    st.markdown("### Indicadores Académicos Derivados")
     d1, d2, d3, d4 = st.columns(4)
-    d1.metric(
-        "Tasa Aprobación 1.er Sem",
-        f"{approval_rate_1st_sem * 100:.1f}%",
-        help="curricular_units_1st_sem_approved / curricular_units_1st_sem_enrolled (0 si matriculadas = 0)",
+    d1.markdown(
+        f"""
+        <div style="background:#FFFFFF;border:1px solid #E2DDD5;border-radius:6px;padding:0.9rem 1rem;height:100%;">
+            <div style="font-size:0.78rem;color:#575652;font-weight:600;">Aprobación 1.er Sem.</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.55rem;font-weight:700;color:#132A21;margin-top:0.25rem;">
+                {approval_rate_1st_sem * 100:.1f}%
+            </div>
+            <div style="font-size:0.75rem;color:#575652;margin-top:0.2rem;">{curricular_units_1st_sem_approved}/{curricular_units_1st_sem_enrolled} unidades</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    d2.metric(
-        "Tasa Aprobación 2.º Sem",
-        f"{approval_rate_2nd_sem * 100:.1f}%",
-        delta=f"{(approval_rate_2nd_sem - approval_rate_1st_sem) * 100:+.1f}% vs 1.er Sem",
-        help="curricular_units_2nd_sem_approved / curricular_units_2nd_sem_enrolled (0 si matriculadas = 0)",
+    d2.markdown(
+        f"""
+        <div style="background:#FFFFFF;border:1px solid #E2DDD5;border-radius:6px;padding:0.9rem 1rem;height:100%;">
+            <div style="font-size:0.78rem;color:#575652;font-weight:600;">Aprobación 2.º Sem.</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.55rem;font-weight:700;color:#132A21;margin-top:0.25rem;">
+                {approval_rate_2nd_sem * 100:.1f}%
+            </div>
+            <div style="font-size:0.75rem;color:#1B5E43;margin-top:0.2rem;">{(approval_rate_2nd_sem - approval_rate_1st_sem) * 100:+.1f}% vs 1.er Sem.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    d3.metric(
-        "Variación de Nota (2.º - 1.º)",
-        f"{grade_diff_sem:+.2f} pts",
-        delta=f"{grade_diff_sem:+.2f}",
-        help="curricular_units_2nd_sem_grade - curricular_units_1st_sem_grade",
+    d3.markdown(
+        f"""
+        <div style="background:#FFFFFF;border:1px solid #E2DDD5;border-radius:6px;padding:0.9rem 1rem;height:100%;">
+            <div style="font-size:0.78rem;color:#575652;font-weight:600;">Variación de Nota</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.55rem;font-weight:700;color:#132A21;margin-top:0.25rem;">
+                {grade_diff_sem:+.2f} pts
+            </div>
+            <div style="font-size:0.75rem;color:#575652;margin-top:0.2rem;">2.º sem ({curricular_units_2nd_sem_grade:.1f}) vs 1.er ({curricular_units_1st_sem_grade:.1f})</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    d4.metric(
-        "Total Unidades Aprobadas",
-        f"{total_approved_units} u.",
-        help="curricular_units_1st_sem_approved + curricular_units_2nd_sem_approved",
+    d4.markdown(
+        f"""
+        <div style="background:#FFFFFF;border:1px solid #E2DDD5;border-radius:6px;padding:0.9rem 1rem;height:100%;">
+            <div style="font-size:0.78rem;color:#575652;font-weight:600;">Unidades Aprobadas</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.55rem;font-weight:700;color:#132A21;margin-top:0.25rem;">
+                {total_approved_units} u.
+            </div>
+            <div style="font-size:0.75rem;color:#575652;margin-top:0.2rem;">Acumulado anual</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     # (d) Construir registro y convertir en un DataFrame de Spark
@@ -1008,33 +1192,32 @@ if submitted:
         predicted_label,
         {
             "es": predicted_label,
-            "icon": "🎓",
+            "tag": "DIAGNÓSTICO",
             "card_class": "result-card-enrolled",
-            "color": "#3B82F6",
+            "color": "#132A21",
             "desc": "",
         },
     )
 
     st.markdown("---")
-    st.subheader("🎯 Resultado de la Clasificación con Spark ML")
+    st.markdown("### Dictamen del Modelo Spark ML")
 
-    res_col1, res_col2 = st.columns([1.15, 1.35])
+    res_col1, res_col2 = st.columns([1.1, 1.4])
 
     with res_col1:
         st.markdown(
             f"""
             <div class="{info['card_class']}">
-                <div style="font-size: 3.1rem; margin-bottom: 0.3rem;">{info['icon']}</div>
-                <div style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #475569;">
-                    Clase Predicha (Índice StringIndexer: {pred_idx})
+                <div class="result-kicker">
+                    {info['tag']} · ÍNDICE {pred_idx} ({predicted_label})
                 </div>
-                <h2 style="margin: 0.4rem 0; color: #0F172A; font-size: 1.75rem;">
+                <div class="result-title">
                     {info['es']}
-                </h2>
-                <div style="font-size: 1.25rem; font-weight: 700; color: {info['color']}; margin-bottom: 0.7rem;">
-                    Confianza: {prob_vector[pred_idx] * 100:.2f}%
                 </div>
-                <p style="font-size: 0.95rem; color: #334155; margin: 0;">
+                <div class="result-confidence" style="color: {info['color']};">
+                    Probabilidad estimada: {prob_vector[pred_idx] * 100:.2f}%
+                </div>
+                <p style="font-size: 0.94rem; color: #3A3A36; line-height: 1.55; margin: 0;">
                     {info['desc']}
                 </p>
             </div>
@@ -1048,45 +1231,49 @@ if submitted:
             p_val = prob_vector[idx] if idx < len(prob_vector) else 0.0
             prob_records.append(
                 {
-                    "Índice (StringIndexer)": idx,
+                    "Índice": idx,
                     "Clase (Target)": lbl,
-                    "Descripción en Español": CLASS_TRANSLATIONS.get(lbl, {}).get("es", lbl),
-                    "Probabilidad": p_val,
+                    "Interpretación": CLASS_TRANSLATIONS.get(lbl, {}).get("es", lbl),
                     "Porcentaje (%)": f"{p_val * 100:.2f}%",
                 }
             )
         prob_df = pd.DataFrame(prob_records)
 
-        st.markdown("##### 📊 Distribución de Probabilidades por Clase")
+        st.markdown("**Distribución de Probabilidades por Clase**")
         st.dataframe(
-            prob_df[["Índice (StringIndexer)", "Clase (Target)", "Descripción en Español", "Porcentaje (%)"]],
+            prob_df,
             use_container_width=True,
             hide_index=True,
         )
 
-        fig, ax = plt.subplots(figsize=(6.5, 2.5))
-        colors = [CLASS_TRANSLATIONS.get(lbl, {}).get("color", "#3B82F6") for lbl in labels]
+        fig, ax = plt.subplots(figsize=(6.5, 2.35))
+        fig.patch.set_facecolor("#FAF8F5")
+        ax.set_facecolor("#FAF8F5")
+        colors = [CLASS_TRANSLATIONS.get(lbl, {}).get("color", "#132A21") for lbl in labels]
         y_labels = [f"{lbl} ({idx})" for idx, lbl in enumerate(labels)]
         pcts = [p * 100 for p in prob_vector]
 
-        bars = ax.barh(y_labels, pcts, color=colors, height=0.55, edgecolor="#1E293B", linewidth=0.8)
-        ax.set_xlim(0, 108)
-        ax.set_xlabel("Probabilidad (%)")
+        bars = ax.barh(y_labels, pcts, color=colors, height=0.48, edgecolor="#1C1C19", linewidth=0.6)
+        ax.set_xlim(0, 110)
+        ax.set_xlabel("Probabilidad (%)", color="#1C1C19", fontsize=9)
+        ax.tick_params(colors="#1C1C19", labelsize=9)
         ax.invert_yaxis()
-        ax.grid(axis="x", linestyle="--", alpha=0.4)
+        ax.grid(axis="x", linestyle=":", color="#C2C8C2", alpha=0.8)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_color("#8E8C84")
+        ax.spines["bottom"].set_color("#8E8C84")
 
         for bar, pct in zip(bars, pcts):
             ax.text(
-                bar.get_width() + 1.5,
+                bar.get_width() + 1.8,
                 bar.get_y() + bar.get_height() / 2,
                 f"{pct:.2f}%",
                 va="center",
                 ha="left",
-                fontsize=10,
+                fontsize=9.5,
                 fontweight="bold",
-                color="#0F172A",
+                color="#1C1C19",
             )
 
         plt.tight_layout()
@@ -1098,8 +1285,8 @@ if submitted:
 st.markdown(
     """
     <div class="author-footer">
-        Desarrollado por <strong>Juan David Ortiz Pérez</strong> — Autor del Proyecto<br>
-        <span>Clasificación de Deserción y Éxito Académico Universitario con Apache Spark ML y Streamlit</span>
+        <div>Autor: <strong>Juan David Ortiz Pérez</strong></div>
+        <span>OBSERVATORIO DE RETENCIÓN UNIVERSITARIA · APACHE SPARK ML &amp; STREAMLIT</span>
     </div>
     """,
     unsafe_allow_html=True,
